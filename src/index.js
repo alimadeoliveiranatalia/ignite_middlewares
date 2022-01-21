@@ -35,20 +35,21 @@ function checksCreateTodosUserAvailability(request, response, next) {
 function checksTodoExists(request, response, next) {
   const {username} = request.headers;
   const {id} = request.params;
-  const user = users.find((users) => users.username === username);
-  const todo = users.find((todos) => todos.id === id);
+  const user = users.find((user) => user.username === username);
   if(!user){
     return response.status(404);
   }
   else{
-    if(!todo){
-      //não ser válido
-      return response.status(404);
+    const todo = users.find((todos) => todos.id === id);
+    if(todo != uuidv4){
+      //não é válido
+      return response.status(400);
     }
     else{
-      //não ser encontrado
-      while(todo){
-      return response.status(400);}
+      //não pode ser encontrado
+      const ids = todo.map(todo=>todo.id);
+      while(todo != ids){
+      return response.status(404);}
     }
     request.todo = todo;
   }
