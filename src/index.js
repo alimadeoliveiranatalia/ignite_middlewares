@@ -41,20 +41,20 @@ function checksTodoExists(request, response, next) {
   }
   else{
     const todo = users.find((todos) => todos.id === id);
-    if(todo != uuidv4){
+    if(validate(todo)){// verifica se é uuid
+      const todoValidos = users.map(todos=>todos.id);
+      while(todo != todoValidos){
+        return response.status(404);}
+      request.todo = todo;
+    }
+    else{
       //não é válido
       return response.status(400);
     }
-    else{
-      //não pode ser encontrado
-      const ids = todo.map(todo=>todo.id);
-      while(todo != ids){
-      return response.status(404);}
-    }
-    request.todo = todo;
+    request.user = user;
+    return next();
   }
-  request.user = user;
-  return next();
+  
 }
 
 function findUserById(request, response, next) {
