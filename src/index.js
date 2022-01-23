@@ -41,16 +41,14 @@ function checksTodoExists(request, response, next) {
   }
   else{
     const todo = users.find((todos) => todos.id === id);
-    if(validate(todo)){// verifica se é uuid
-      const todoValidos = users.map(todos=>todos.id);
-      while(todo != todoValidos){
-        return response.status(404);}
-      request.todo = todo;
+    if(!validate(todo)){// caso não é uuid
+        return response.status(400);
     }
-    else{
-      //não é válido
-      return response.status(400);
+    if(!todo){
+      //não for encontrado
+      return response.status(404);
     }
+    request.todo = todo;
     request.user = user;
     return next();
   }
