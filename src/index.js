@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 
-const { v4: uuidv4, validate } = require('uuid');
+const { v4: uuidv4, validate: uuidValidate } = require('uuid');
 
 const app = express();
 app.use(express.json());
@@ -22,12 +22,11 @@ function checksExistsUserAccount(request, response, next) {
 
 function checksCreateTodosUserAvailability(request, response, next) {
   const {user} = request;
-  const userAlreadyPro = users.find((users) => users.pro === true);
-  const todoMax = users.map(todos =>todos.id);
-  if(!userAlreadyPro && todoMax.length===10){
-      return response.status(403);
-    
+  const how_many_todos = user.todos.length;
+  if(user.pro === false && how_many_todos === 10){
+    response.status(403).json({error: "Please you need to sign up for the pro plan"});
   }
+  
   return next();
     
   }
@@ -35,23 +34,27 @@ function checksCreateTodosUserAvailability(request, response, next) {
 function checksTodoExists(request, response, next) {
   const {username} = request.headers;
   const {id} = request.params;
+
   const user = users.find((user) => user.username === username);
+  
   if(!user){
-    return response.status(404);
+    return response.status(404).json({ error: "User does not exist!"});
   }
-  else{
-    const todo = users.find((todos) => todos.id === id);
-    if(!validate(todo)){// caso não é uuid
-        return response.status(400);
-    }
-    if(!todo){
-      //não for encontrado
-      return response.status(404);
-    }
-    request.todo = todo;
-    request.user = user;
-    return next();
+
+  if(!uuidValidate(id, 4)){// caso não é uuid
+      return response.status(400);
   }
+  
+  const todo = user.todos.find((todos) => todos.id === id);
+  
+  if(!todo){
+    //não for encontrado
+    return response.status(404).json({ error: "Todo not found!"});
+  }
+  request.user = user;
+  request.todo = todo;
+  
+  return next();
   
 }
 
